@@ -1,0 +1,11 @@
+.env
+
+downloaded_files/
+parsed_output/
+news_output/
+
+*.db
+*.log
+
+__pycache__/
+*.pyc
