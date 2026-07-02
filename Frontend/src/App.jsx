@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { supabase } from './lib/supabase';
 import AuthPage from './pages/AuthPage';
 import Dashboard from './pages/Dashboard';
-import Watchlist from './pages/watchlist';
+import Watchlist from './pages/Watchlist';
 import CompanyFundamentals from './pages/CompanyFundamentals';
 import Navbar from './components/Navbar';
 import './App.css';
