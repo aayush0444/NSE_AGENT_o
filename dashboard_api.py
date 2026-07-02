@@ -16,10 +16,23 @@ import pandas as pd
 
 app = FastAPI()
 
-# Allow CORS from the React dev server
+def _get_cors_origins() -> list[str]:
+    default_origins = [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:5174",
+        "http://127.0.0.1:5174",
+    ]
+    extra_origins = os.getenv("CORS_ORIGINS", "")
+    if not extra_origins.strip():
+        return default_origins
+    parsed = [origin.strip() for origin in extra_origins.split(",") if origin.strip()]
+    return default_origins + parsed
+
+# Allow CORS from the React dev server and any configured production frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:5174", "http://127.0.0.1:5174"],
+    allow_origins=_get_cors_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
