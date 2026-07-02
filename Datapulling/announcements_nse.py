@@ -29,6 +29,20 @@ import hashlib
 import logging
 from datetime import datetime
 from pathlib import Path
+import os
+from supabase import create_client, Client
+from dotenv import load_dotenv
+
+def get_supabase_client() -> Client:
+    url = os.getenv("SUPABASE_URL")
+    key = os.getenv("SUPABASE_SERVICE_KEY")
+    if not url or not key:
+        raise ValueError("SUPABASE_URL and SUPABASE_SERVICE_KEY must be set in .env")
+    return create_client(url, key)
+
+load_dotenv()
+# Initialise Supabase client for the module
+supabase_client = get_supabase_client()
 
 import requests
 from apscheduler.schedulers.blocking import BlockingScheduler
@@ -327,6 +341,16 @@ def process_record(rec: dict, baseline: bool) -> bool:
             "file_hash": file_hash,
             "downloaded_at": datetime.now().isoformat(),
         })
+        # Upsert symbol into Supabase nse_stocks table
+        try:
+            supabase_client.table("nse_stocks").upsert({
+                "symbol": symbol,
+                "company_name": company_name or symbol,
+                "exchange": "NSE",
+                "last_updated": datetime.utcnow().isoformat(),
+            }, on_conflict="symbol").execute()
+        except Exception as e:
+            log.error(f"[Supabase] Failed to upsert stock {symbol}: {e}")
         return True
     return False
 

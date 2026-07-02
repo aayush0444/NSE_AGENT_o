@@ -1,0 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-wire-bg: #090c0a;
+  --color-wire-panel: #0f1512;
+  --color-wire-line: #1f2b24;
+  --color-wire-text: #dce9e0;
+  --color-wire-dim: #7c9286;
+
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+
+  --animate-marquee: marquee 22s linear infinite;
+  --animate-slide-in: slide-in 220ms ease-out;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background-color: #090c0a;
+  color: #dce9e0;
+}
+
+/* scrollbar styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #1f2b24 transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: #1f2b24;
+  border-radius: 4px;
+}

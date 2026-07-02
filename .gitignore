@@ -1,11 +1,36 @@
+# Environment files
 .env
+.env.*
 
+# Python virtual environments
+.venv/
+venv/
+env/
+
+# Pipeline outputs and local data stores
 downloaded_files/
 parsed_output/
 news_output/
-
 *.db
+*.db-shm
+*.db-wal
 *.log
 
+# Python cache and test artifacts
 __pycache__/
 *.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage/
+
+# Vite / frontend local build artifacts
+.vite/
+dist/
+dist-ssr/
+
+# OS junk
+.DS_Store
+Thumbs.db
+Desktop.ini

@@ -22,11 +22,21 @@ from typing import Optional
 import httpx
 from pydantic import ValidationError
 from dotenv import load_dotenv
+from supabase import create_client, Client
+
+def get_supabase_client() -> Client:
+    url = os.getenv("SUPABASE_URL")
+    key = os.getenv("SUPABASE_SERVICE_KEY")
+    if not url or not key:
+        raise ValueError("SUPABASE_URL and SUPABASE_SERVICE_KEY must be set in .env")
+    return create_client(url, key)
 
 from .schemas import FilingNewsExtraction
 from .token_tracker import record_token_usage, print_usage_summary
 
 load_dotenv()
+# Initialise Supabase client once for the module
+supabase_client = get_supabase_client()
 
 logging.basicConfig(
     level=logging.INFO,
@@ -42,7 +52,7 @@ OUTPUT_DIR   = Path("news_output")
 PROCESSED_DB = "processed_files.db"
 
 OPENROUTER_KEY = os.getenv("OPENROUTER_KEY", "")
-MODEL = "openai/gpt-4o-mini"
+MODEL = "openai/gpt-oss-120b:free"
 
 
 # ── Dedup tracking — "process each file once" ───────────────────────────────
@@ -253,6 +263,24 @@ def process_file(parsed_file_path: Path, force: bool = False) -> Optional[Filing
     output_path = out_dir / f"{stem}_news.json"
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(extracted.model_dump(), f, indent=2, ensure_ascii=False)
+
+    # Insert each fact into Supabase news_items table
+    for fact in extracted.facts:
+        row = {
+            "symbol": symbol,
+            "alert_message": fact.alert_message,
+            "event_category": fact.event_category,
+            "has_material_development": extracted.has_material_development,
+            "page_number": fact.page_number,
+            "verbatim_source_quote": fact.verbatim_source_quote,
+            "reporting_period": fact.reporting_period,
+            "source_filename": meta.get("filename"),
+            "filing_date": meta.get("broadcast_at"),
+        }
+        try:
+            supabase_client.table("news_items").insert(row).execute()
+        except Exception as e:
+            log.error(f"[Supabase] Failed to insert news item for {symbol}: {e}")
 
     mark_processed(filename, len(extracted.facts))
 
